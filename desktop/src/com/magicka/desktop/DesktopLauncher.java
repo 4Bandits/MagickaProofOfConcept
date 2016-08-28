@@ -6,7 +6,6 @@ import com.magicka.Magicka;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
-		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		new LwjglApplication(new Magicka(), config);
+		new LwjglApplication(new Magicka(), "Magicka", Magicka.SCREEN_WIDTH, Magicka.SCREEN_HEIGHT);
 	}
 }
