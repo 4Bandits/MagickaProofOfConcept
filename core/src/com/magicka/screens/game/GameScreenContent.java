@@ -9,13 +9,13 @@ import com.magicka.model.Mage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameContent {
+public class GameScreenContent {
 
     private List<GameObject> objects;
     private PlayerConfiguration playerOneConfiguration;
     private PlayerConfiguration playerTwoConfiguration;
 
-    public GameContent() {
+    public GameScreenContent() {
         this.initializePlayersConfigurations();
         this.initializeObjects();
     }

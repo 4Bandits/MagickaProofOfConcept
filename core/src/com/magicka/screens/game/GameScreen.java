@@ -10,12 +10,12 @@ public class GameScreen extends ScreenAdapter {
 
     private Magicka game;
     private OrthographicCamera camera;
-    private GameContent gameContent;
+    private GameScreenContent content;
 
     public GameScreen(Magicka game) {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         this.game = game;
-        this.gameContent = new GameContent();
+        this.content = new GameScreenContent();
         this.initializeCamera();
     }
 
@@ -28,12 +28,12 @@ public class GameScreen extends ScreenAdapter {
 
     private void update(float delta) {
         this.camera.update();
-        this.gameContent.update(delta);
+        this.content.update(delta);
     }
 
     private void draw() {
         this.game.batcher.begin();
-        this.gameContent.render(this.game.batcher);
+        this.content.render(this.game.batcher);
         this.game.batcher.end();
     }
 
