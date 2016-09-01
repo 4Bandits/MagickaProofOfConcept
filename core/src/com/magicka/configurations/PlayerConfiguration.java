@@ -6,6 +6,7 @@ public class PlayerConfiguration {
     private int downKey;
     private int leftKey;
     private int rightKey;
+    private int fireKey;
 
     public int getUpKey() {
         return this.upKey;
@@ -37,5 +38,13 @@ public class PlayerConfiguration {
 
     public void setRightKey(int rightKey) {
         this.rightKey = rightKey;
+    }
+
+    public int getFireKey() {
+        return fireKey;
+    }
+
+    public void setFireKey(int fireKey) {
+        this.fireKey = fireKey;
     }
 }

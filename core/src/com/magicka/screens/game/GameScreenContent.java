@@ -1,41 +1,52 @@
 package com.magicka.screens.game;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.magicka.GameObject;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.magicka.configurations.PlayerConfiguration;
 import com.magicka.model.Mage;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class GameScreenContent {
 
-    private List<GameObject> objects;
+    private Mage mageOne;
+    private Mage mageTwo;
+
+    private ShapeRenderer shapeRenderer;
     private PlayerConfiguration playerOneConfiguration;
     private PlayerConfiguration playerTwoConfiguration;
+
+    private static final float HEALTH_BAR_X_P1 = 30;
+    private static final float HEALTH_BAR_X_P2 = 1050;
+    private static final float HEALTH_BAR_Y = 720;
+    private static final float HEALTH_BAR_HEIGHT = 25;
 
     public GameScreenContent() {
         this.initializePlayersConfigurations();
         this.initializeObjects();
+        this.shapeRenderer = new ShapeRenderer();
     }
 
     public void update(float delta) {
-        for (GameObject object : this.objects) {
-            object.update(delta);
-        }
+        mageOne.update(delta);
+        mageTwo.update(delta);
+
+        mageOne.updateIfDamagedBy(mageTwo);
+        mageTwo.updateIfDamagedBy(mageOne);
     }
 
     public void render(SpriteBatch batcher) {
-        for (GameObject object : this.objects) {
-            object.render(batcher);
-        }
+        mageOne.render(batcher);
+        mageTwo.render(batcher);
+
+        batcher.end();
+        drawHealthBars();
+        batcher.begin();
     }
 
     private void initializeObjects() {
-        this.objects = new ArrayList<GameObject>();
-        this.objects.add(new Mage(this.playerOneConfiguration));
-        this.objects.add(new Mage(this.playerTwoConfiguration));
+        this.mageOne = new Mage(this.playerOneConfiguration, 0, 0);
+        this.mageTwo = new Mage(this.playerTwoConfiguration, 500, 500);
     }
 
     private void initializePlayersConfigurations() {
@@ -50,6 +61,7 @@ public class GameScreenContent {
         this.playerOneConfiguration.setDownKey(Input.Keys.S);
         this.playerOneConfiguration.setLeftKey(Input.Keys.A);
         this.playerOneConfiguration.setRightKey(Input.Keys.D);
+        this.playerOneConfiguration.setFireKey(Input.Keys.SPACE);
     }
 
     private void initializePlayerTwoConfiguration() {
@@ -57,5 +69,24 @@ public class GameScreenContent {
         this.playerTwoConfiguration.setDownKey(Input.Keys.DOWN);
         this.playerTwoConfiguration.setLeftKey(Input.Keys.LEFT);
         this.playerTwoConfiguration.setRightKey(Input.Keys.RIGHT);
+        this.playerTwoConfiguration.setFireKey(Input.Keys.CONTROL_RIGHT);
+    }
+
+    private void drawHealthBars() {
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        drawHealthBarForMage(mageOne, HEALTH_BAR_X_P1);
+        drawHealthBarForMage(mageTwo, HEALTH_BAR_X_P2);
+        shapeRenderer.end();
+    }
+
+    private void drawHealthBarForMage(Mage mage, float x_coordinate) {
+        float health_bar_width = mage.getHealth() * 3;
+        float missing_health = (100 - mage.getHealth()) * 3;
+
+        shapeRenderer.setColor(Color.GREEN);
+        shapeRenderer.rect(x_coordinate, HEALTH_BAR_Y, health_bar_width, HEALTH_BAR_HEIGHT);
+
+        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.rect(x_coordinate + health_bar_width, HEALTH_BAR_Y, missing_health, HEALTH_BAR_HEIGHT);
     }
 }
