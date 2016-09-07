@@ -1,44 +1,41 @@
 package com.magicka.model;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.magicka.GameObject;
 import com.magicka.configurations.PlayerConfiguration;
 import com.magicka.helpers.KeyPressedHelper;
+import com.magicka.helpers.TextureManager;
 
-public class Mage implements GameObject {
+import java.util.Collection;
 
-    /*
-    * A bad thing about this is that the Model is mixed with the behaviour on the screen.
-    * TODO: We can try and split the concepts of Model and View.
-    */
+public class Mage extends Sprite implements GameObject {
 
-    private Vector2 coordinates;
-    private Texture sprite;
+    private Vector2 previousPosition;
     private PlayerConfiguration configuration;
     private int health;
     private Fire fire;
-    private Rectangle bounds;
     private float cooldown = 2;
     private float timeSinceLastCast = 0;
+    private TextureManager textureManager;
 
-    public Mage(PlayerConfiguration configuration, float x, float y) {
+    public Mage(TextureManager textureManager, PlayerConfiguration configuration, float x, float y) {
+        super(textureManager.getMage());
+        this.textureManager = textureManager;
+        this.setPosition(x,y);
         this.health = 100;
-        this.coordinates = new Vector2(x, y);
+        this.previousPosition = new Vector2(getX(), getY());
         this.configuration = configuration;
-        this.sprite = new Texture("Mage.png");
-        this.fire = new Fire(x, y);
-        this.bounds = new Rectangle(x, y, this.sprite.getWidth(), this.sprite.getHeight());
+        this.fire = new Fire(textureManager.getAttack(), x, y);
     }
 
     @Override
     public void update(float delta) {
         timeSinceLastCast += Gdx.graphics.getRawDeltaTime();
         if(timeSinceLastCast > cooldown){
-            this.fire = new Fire(this.coordinates.x, this.coordinates.y);
+            this.fire = new Fire(textureManager.getAttack(), this.getX(), this.getY());
             this.timeSinceLastCast = 0;
         }
 
@@ -65,7 +62,7 @@ public class Mage implements GameObject {
 
     @Override
     public void render(SpriteBatch batch) {
-        batch.draw(this.sprite, this.coordinates.x, this.coordinates.y);
+        this.draw(batch);
         this.fire.render(batch);
     }
 
@@ -74,47 +71,51 @@ public class Mage implements GameObject {
     }
 
     private void moveImageLeft() {
-        this.coordinates.add(-5, 0);
-        this.bounds.setPosition(coordinates.x, coordinates.y);
+        this.translate(-5,0);
         if(!this.fire.isUsed()) {
-            this.fire.updateCoordinates(coordinates.x, coordinates.y);
+            this.fire.updateCoordinates(this.getX(), this.getY());
         }
     }
 
     private void moveImageRight() {
-        this.coordinates.add(5, 0);
-        this.bounds.setPosition(coordinates.x, coordinates.y);
+        this.translate(5,0);
         if(!this.fire.isUsed()) {
-            this.fire.updateCoordinates(coordinates.x, coordinates.y);
+            this.fire.updateCoordinates(this.getX(), this.getY());
         }
     }
 
     private void moveImageDown() {
-        this.coordinates.add(0, -5);
-        this.bounds.setPosition(coordinates.x, coordinates.y);
+        this.translate(0, -5);
         if(!this.fire.isUsed()) {
-            this.fire.updateCoordinates(coordinates.x, coordinates.y);
+            this.fire.updateCoordinates(this.getX(), this.getY());
         }
     }
 
     private void moveImageUp() {
-        this.coordinates.add(0, 5);
-        this.bounds.setPosition(coordinates.x, coordinates.y);
+        this.translate(0, 5);
         if(!this.fire.isUsed()) {
-            this.fire.updateCoordinates(coordinates.x, coordinates.y);
+            this.fire.updateCoordinates(this.getX(), this.getY());
         }
     }
 
-    public void updateIfDamagedBy(Mage otherMage) {
-        if (otherMage.attackIsAt(this.bounds)) {
-            if(this.health > 2)
+    public void updateIfDamagedByAnyOf(Collection<Mage> otherMages) {
+        otherMages.forEach(anotherMage -> {
+            if(anotherMage.getFire().isUsed() && this.getBoundingRectangle().overlaps(anotherMage.getFire().getBoundingRectangle())){
                 this.health -= 2;
-            else
-                this.health = 0;
-        }
+            }
+        });
     }
 
-    private boolean attackIsAt(Rectangle bounds) {
-        return this.fire.isAt(bounds);
+    public Fire getFire(){
+        return fire;
+    }
+
+    public boolean hasMoved(){
+        if(previousPosition.x != getX() || previousPosition.y != getY()){
+            previousPosition.x = getX();
+            previousPosition.y = getY();
+            return true;
+        }
+        return false;
     }
 }

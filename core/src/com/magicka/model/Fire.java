@@ -1,41 +1,37 @@
 package com.magicka.model;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.magicka.GameObject;
 
-public class Fire implements GameObject {
+public class Fire extends Sprite implements GameObject {
 
-    private Vector2 coordinates;
-    private Texture sprite;
+    private Vector2 previousPosition;
     private float speed;
-    private Rectangle bounds;
     private boolean used;
 
-    public Fire(float x, float y) {
-        this.coordinates = new Vector2(x, y);
-        this.sprite = new Texture("Fire.png");
+    public Fire(Texture texture, float x, float y) {
+        super(texture);
+        this.setPosition(x,y);
         this.speed = 10;
-        this.bounds = new Rectangle(coordinates.x, this.coordinates.y, this.sprite.getWidth(), this.sprite.getHeight());
         this.used = false;
     }
 
     @Override
     public void update(float delta) {
-        this.coordinates.add(1 * speed * 1, 1 * speed * 1);
-        this.bounds.setPosition(this.coordinates);
+        this.translate(1 * speed * 1, 1 * speed * 1);
     }
 
     @Override
     public void render(SpriteBatch batch) {
         if(used)
-            batch.draw(this.sprite, this.coordinates.x, this.coordinates.y);
+            this.draw(batch);
     }
 
     public void updateCoordinates(float x, float y) {
-        this.coordinates.set(x, y);
+        this.setPosition(x, y);
     }
 
     public void setUsed() {
@@ -46,7 +42,4 @@ public class Fire implements GameObject {
         return used;
     }
 
-    public boolean isAt(Rectangle bounds) {
-        return this.bounds.overlaps(bounds);
-    }
 }

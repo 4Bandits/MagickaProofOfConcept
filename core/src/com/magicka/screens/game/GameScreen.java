@@ -4,7 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.magicka.Magicka;
+import com.magicka.helpers.TextureManager;
 
 public class GameScreen extends ScreenAdapter {
 
@@ -12,10 +14,10 @@ public class GameScreen extends ScreenAdapter {
     private OrthographicCamera camera;
     private GameScreenContent content;
 
-    public GameScreen(Magicka game) {
+    public GameScreen(Magicka game, TextureManager textureManager) {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         this.game = game;
-        this.content = new GameScreenContent();
+        this.content = new GameScreenContent(textureManager);
         this.initializeCamera();
     }
 
@@ -32,9 +34,9 @@ public class GameScreen extends ScreenAdapter {
     }
 
     private void draw() {
-        this.game.batcher.begin();
-        this.content.render(this.game.batcher);
-        this.game.batcher.end();
+        this.game.batch.begin();
+        this.content.render(this.game.batch);
+        this.game.batch.end();
     }
 
     private void initializeCamera() {
