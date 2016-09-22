@@ -5,56 +5,41 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.magicka.GameObject;
+import com.magicka.configurations.MovingComponent;
 import com.magicka.configurations.PlayerConfiguration;
-import com.magicka.helpers.KeyPressedHelper;
 import com.magicka.helpers.TextureManager;
+import com.magicka.server.Observable;
+import org.json.JSONObject;
 
 import java.util.Collection;
 
-public class Mage extends Sprite implements GameObject {
+public class Mage extends Sprite implements GameObject, MovingComponent, Observable{
 
     private Vector2 previousPosition;
-    private PlayerConfiguration configuration;
     private int health;
     private Fire fire;
     private float cooldown = 2;
     private float timeSinceLastCast = 0;
-    private TextureManager textureManager;
 
-    public Mage(TextureManager textureManager, PlayerConfiguration configuration, float x, float y) {
-        super(textureManager.getMage());
-        this.textureManager = textureManager;
+
+    public Mage(PlayerConfiguration playerConfiguration, float x, float y) {
+        super(TextureManager.getInstance().getMage());
         this.setPosition(x,y);
         this.health = 100;
         this.previousPosition = new Vector2(getX(), getY());
-        this.configuration = configuration;
-        this.fire = new Fire(textureManager.getAttack(), x, y);
+        this.fire = new Fire(TextureManager.getInstance().getAttack(), x, y);
+        this.addEntries(playerConfiguration.getListOfEnries());
     }
 
     @Override
     public void update(float delta) {
         timeSinceLastCast += Gdx.graphics.getRawDeltaTime();
         if(timeSinceLastCast > cooldown){
-            this.fire = new Fire(textureManager.getAttack(), this.getX(), this.getY());
+            this.fire.setUsed();
+            this.fire.setPosition(this.getX(),this.getY());
             this.timeSinceLastCast = 0;
         }
-
-        if(KeyPressedHelper.isKeyPressed(this.configuration.getLeftKey())) {
-            this.moveImageLeft();
-        }
-        if(KeyPressedHelper.isKeyPressed(this.configuration.getDownKey())) {
-            this.moveImageDown();
-        }
-        if(KeyPressedHelper.isKeyPressed(this.configuration.getRightKey())) {
-            this.moveImageRight();
-        }
-        if(KeyPressedHelper.isKeyPressed(this.configuration.getUpKey())) {
-            this.moveImageUp();
-        }
-        if(KeyPressedHelper.isKeyJustPressed(this.configuration.getFireKey())) {
-            this.fire.setUsed();
-        }
-
+        this.movements();
         if(this.fire.isUsed()) {
             this.fire.update(delta);
         }
@@ -70,29 +55,37 @@ public class Mage extends Sprite implements GameObject {
         return health;
     }
 
-    private void moveImageLeft() {
-        this.translate(-5,0);
+    public void actionForSpace() {
+        this.fire.setUsed();
+    }
+
+    public void actionForLeft() {
+        this.translate(-3,0);
+        this.notify(this.toJson());
         if(!this.fire.isUsed()) {
             this.fire.updateCoordinates(this.getX(), this.getY());
         }
     }
 
-    private void moveImageRight() {
-        this.translate(5,0);
+    public void actionForRight() {
+        this.translate(3,0);
+        this.notify(this.toJson());
         if(!this.fire.isUsed()) {
             this.fire.updateCoordinates(this.getX(), this.getY());
         }
     }
 
-    private void moveImageDown() {
-        this.translate(0, -5);
+    public void actionForDown() {
+        this.translate(0, -3);
+        this.notify(this.toJson());
         if(!this.fire.isUsed()) {
             this.fire.updateCoordinates(this.getX(), this.getY());
         }
     }
 
-    private void moveImageUp() {
-        this.translate(0, 5);
+    public void actionForUp() {
+        this.translate(0, 3);
+        this.notify(this.toJson());
         if(!this.fire.isUsed()) {
             this.fire.updateCoordinates(this.getX(), this.getY());
         }
@@ -117,5 +110,16 @@ public class Mage extends Sprite implements GameObject {
             return true;
         }
         return false;
+    }
+
+    public JSONObject toJson(){
+        JSONObject data = new JSONObject();
+        try {
+            data.put("x", this.getX());
+            data.put("y", this.getY());
+            return data;
+        }catch (Exception e){
+            throw new RuntimeException("Error - Json");
+        }
     }
 }

@@ -14,10 +14,10 @@ public class GameScreen extends ScreenAdapter {
     private OrthographicCamera camera;
     private GameScreenContent content;
 
-    public GameScreen(Magicka game, TextureManager textureManager) {
+    public GameScreen(Magicka game) {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         this.game = game;
-        this.content = new GameScreenContent(textureManager);
+        this.content = new GameScreenContent();
         this.initializeCamera();
     }
 

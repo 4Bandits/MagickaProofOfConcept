@@ -35,7 +35,7 @@ public class Fire extends Sprite implements GameObject {
     }
 
     public void setUsed() {
-        this.used = true;
+        this.used = !this.used;
     }
 
     public boolean isUsed() {
